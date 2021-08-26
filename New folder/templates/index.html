@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../templates/gauge.min.js"></script>
+    <script src="../templates/jquery.min.js"></script>
+    <link rel="stylesheet" href="../templates/flip/flip.min.css">
+</head>
+<body style="background-image: url('../templates/backgroundimg.jpg'); background-repeat: no-repeat;  width: 80%;">
+    <div style="height: 420px; width: 420px;">
+        <canvas id="foo" style="height: 275px; width: 345px; padding-left: 93px; padding-top: 63px;"></canvas>      
+    </div>
+
+    
+    <div class="tick" style="width: 380px; height: 250px; padding-left: 260px; padding-top: 166px;" data-value="00" data-did-init="handleTickInit">
+        <div data-value-mapping="indexes" data-layout="horizontal fit" data-transform="arrive(.2) -> split -> delay(rtl, 100, 150)"></div>
+        <span data-view="flip" style="width: 90px;">0</span>          
+    </div>
+
+
+    <script>
+		var interaction_time = 1000 * 3600 * 24;
+        var canteen_people = 0;
+
+        var opts = {
+            angle: -0.2, // The span of the gauge arc
+            lineWidth: 0.5, // The line thickness
+            radiusScale: 0.89, // Relative radius
+            pointer: {
+            length: 0.6, // // Relative to gauge radius
+            strokeWidth: 0.053, // The thickness
+            color: '#000000' // Fill color
+            },
+            limitMax: false,     // If false, max value increases automatically if value > maxValue
+            limitMin: false,     // If true, the min value of the gauge will be fixed
+            colorStart: '#6FADCF',   // Colors
+            colorStop: '#8FC0DA',    // just experiment with them
+            strokeColor: '#E0E0E0',  // to see which ones work best for you
+            generateGradient: true,
+            highDpiSupport: true,     // High resolution support
+            staticZones: [
+                {strokeStyle: "#168B3D", min: 0, max: 10},  // Dark-Green
+                {strokeStyle: "#7FB24B", min: 10, max: 20},  // Green
+                {strokeStyle: "#BFC62A", min: 20, max: 30},  // Light-Yellow
+                {strokeStyle: "#DCB90B", min: 30, max: 40},  // Yellow
+                {strokeStyle: "#CB691E", min: 40, max: 50},  // Orange
+                {strokeStyle: "#B41C25", min: 50, max: 60}   // Red
+            ],
+        };
+
+        var target = document.getElementById('foo'); // your canvas element
+        var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+        gauge.maxValue = 60; // set max gauge value
+        gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+        gauge.animationSpeed = 32; // set animation speed (32 is default value)
+
+        window.onload = function() {
+            interaction_time = 2000; // refresh frequency
+            setInterval(rebind_data, interaction_time);           
+		};
+
+
+        function rebind_data()
+		{
+            canteen_people = getDynamicData(); 
+            console.log(canteen_people.random_number);
+            gauge.set(parseInt(canteen_people.random_number));          
+        }
+
+
+        function getDynamicData() {
+			var return_result;
+			$.ajax({
+				type: "GET",
+				url: "http://127.0.0.1:5000/randomData",
+				dataType: "json",
+				async : false,
+				success: function (result) {
+					return_result = result;
+				}
+			});
+					
+			return 	return_result;
+		}
+
+        function handleTickInit(tick) {
+                tick.value = 00;
+
+                // simulate value updates for demo purposes
+                Tick.helper.interval(function(){
+                    //tick.value += Math.ceil(Math.random() * 10);
+                    tick.value = canteen_people.random_number;
+
+                    console.log(tick.value);
+                }, 100);
+
+
+                }
+    </script>
+
+    <script src="../templates/flip/flip.min.js"></script>
+</body>
+
+<style>
+    .tick {
+      font-size:1rem; white-space:nowrap; font-family:arial,sans-serif;
+    }
+    
+    .tick-flip,.tick-text-inline {
+      font-size:2.5em;
+    }
+    
+    .tick-label {
+      margin-top:1em;font-size:1em;
+    }
+    
+    .tick-char {
+      width:1.5em;
+    }
+    
+    .tick-text-inline {
+      display:inline-block;text-align:center;min-width:1em;
+    }
+    
+    .tick-text-inline+.tick-text-inline {
+      margin-left:-.325em;
+    }
+    
+    .tick-group {
+      margin:0 .5em;text-align:center;
+    }
+    
+    body {
+       background-color: #fff !important; 
+    }
+    
+    .tick-text-inline {
+       color: #595d63 !important; 
+    }
+    
+    .tick-label {
+       color: #595d63 !important; 
+    }
+    
+    .tick-flip-panel {
+       color: #fff !important; 
+    }
+    
+    .tick-flip {
+       font-family: !important; 
+    }
+    
+    .tick-flip-panel-text-wrapper {
+       line-height: 1.45 !important; 
+    }
+    
+    .tick-flip-panel {
+       background-color: #3c3e3c !important; 
+    }
+    
+    .tick-flip {
+       border-radius:0.12em !important; 
+    }
+</style>
+
+
+</html>
